@@ -153,6 +153,8 @@ class adLDAPGroups {
     /**
     * Create a group
     * 
+    * Extended to allow to specify $attribute["container"] as string, because array hardcodes "OU=", while Samba4 and win2008r2 uses "CN=Users"
+    *
     * @param array $attributes Default attributes of the group
     * @return bool
     */
@@ -162,8 +164,7 @@ class adLDAPGroups {
         if (!array_key_exists("group_name", $attributes)){ return "Missing compulsory field [group_name]"; }
         if (!array_key_exists("container", $attributes)){ return "Missing compulsory field [container]"; }
         if (!array_key_exists("description", $attributes)){ return "Missing compulsory field [description]"; }
-        if (!is_array($attributes["container"])){ return "Container attribute must be an array."; }
-        $attributes["container"] = array_reverse($attributes["container"]);
+        if (empty($attributes["container"])){ return "Container attribute must be an array or string."; }
 
         //$member_array = array();
         //$member_array[0] = "cn=user1,cn=Users,dc=yourdomain,dc=com";
@@ -176,8 +177,12 @@ class adLDAPGroups {
         $add["description"] = $attributes["description"];
         //$add["member"] = $member_array; UNTESTED
 
-        $container = "OU=" . implode(",OU=", $attributes["container"]);
-        $result = ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"] . ", " . $container . "," . $this->adldap->getBaseDn(), $add);
+        // Determine the container
+        if (is_array($attributes['container'])) {
+            $attributes["container"] = array_reverse($attributes["container"]);
+            $attributes["container"] = "OU=" . implode(",OU=",$attributes["container"]);
+        }
+        $result = ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"] . "," . $attributes["container"] . "," . $this->adldap->getBaseDn(), $add);
         if ($result != true) { 
             return false; 
         }
