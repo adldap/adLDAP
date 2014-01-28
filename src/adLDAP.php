@@ -163,6 +163,13 @@ class adLDAP {
     */
     protected $recursiveGroups = true;
 	
+	/**
+	 * Charset used for internal encoding
+	 *
+	 * @var string
+	 */
+	public $charset = 'iso-8859-1';
+
 	// You should not need to edit anything below this line
 	//******************************************************************************************
 	
@@ -584,6 +591,9 @@ class adLDAP {
                     $this->setUseSSO(false);
                 }
             } 
+            if (array_key_exists("charset", $options)) {
+                $this->charset = strtolower($options["charset"]);
+            }
         }
         
         if ($this->ldapSupported() === false) {
@@ -919,15 +929,18 @@ class adLDAP {
     */
     protected function encode8Bit(&$item, $key) {
         $encode = false;
-        if (is_string($item)) {
+        if (is_string($item) && $key != 'password' && $this->charset != 'utf-8') {
             for ($i=0; $i<strlen($item); $i++) {
                 if (ord($item[$i]) >> 7) {
                     $encode = true;
+                    break;
                 }
             }
         }
-        if ($encode === true && $key != 'password') {
-            $item = utf8_encode($item);   
+        if ($encode === true) {
+            $item = function_exists('mb_convert_encoding') ?
+                mb_convert_encoding($item, 'utf-8', $this->charset) :
+                utf8_encode($item);
         }
     }
     
