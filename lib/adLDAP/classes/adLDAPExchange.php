@@ -123,7 +123,8 @@ class adLDAPExchange {
         // We do not have to demote an email address from the default so we can just add the new proxy address
         $attributes['exchange_proxyaddress'] = $proxyValue . 'c=' . $country . ';a=' . $admd . ';p=' . $pdmd . ';o=' . $org . ';s=' . $surname . ';g=' . $givenName . ';';
        
-        // Translate the update to the LDAP schema                
+        // Translate the update to the LDAP schema         
+		// Not familiar with exchanges.  Can't determine if this use of adldap_schema requires review with update
         $add = $this->adldap->adldap_schema($attributes);
         
         if (!$add) { return false; }
@@ -184,7 +185,8 @@ class adLDAPExchange {
             // We do not have to demote an email address from the default so we can just add the new proxy address
             $attributes['exchange_proxyaddress'] = $proxyValue . $emailAddress;
             
-            // Translate the update to the LDAP schema                
+            // Translate the update to the LDAP schema       
+			// Not familiar with exchanges.  Can't determine if this use of adldap_schema requires review with update
             $add = $this->adldap->adldap_schema($attributes);
             
             if (!$add) { 
@@ -303,7 +305,8 @@ class adLDAPExchange {
         
         $attributes = array("email"=>$emailAddress,"contact_email"=>"SMTP:" . $emailAddress,"exchange_proxyaddress"=>"SMTP:" . $emailAddress,"exchange_mailnickname" => $mailNickname);
          
-        // Translate the update to the LDAP schema                
+        // Translate the update to the LDAP schema           
+		// Not familiar with exchanges.  Can't determine if this use of adldap_schema requires review with update
         $mod = $this->adldap->adldap_schema($attributes);
         
         // Check to see if this is an enabled status update

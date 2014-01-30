@@ -86,9 +86,11 @@ class adLDAPUsers {
             throw new \adLDAP\adLDAPException('SSL must be configured on your webserver and enabled in the class to set passwords.');
         }
 
-        if (!array_key_exists("display_name", $attributes)) { 
-            $attributes["display_name"] = $attributes["firstname"] . " " . $attributes["surname"]; 
-        }
+		/** No longer necessary.  Schema should handle. **/
+		
+        //if (!array_key_exists("display_name", $attributes)) { 
+        //     $attributes["display_name"] = $attributes["firstname"] . " " . $attributes["surname"]; 
+        //}
 
         // Translate the schema
         $add = $this->adldap->adldap_schema($attributes);

@@ -163,6 +163,15 @@ class adLDAP {
     */
     protected $recursiveGroups = true;
 	
+	/**
+	 * Edit the display name
+	 * 
+	 * Similar to modifying the CN=user-Display display specifier.
+	 * 
+	 * @var string 
+	 */
+	protected $userDisplay = "%<givenName> %<initials> %<sn>";
+	
 	// You should not need to edit anything below this line
 	//******************************************************************************************
 	
@@ -900,19 +909,30 @@ class adLDAP {
         if ($attributes["exchange_hidefromlists"]) { $mod["msExchHideFromAddressLists"][0]=$attributes["exchange_hidefromlists"]; }
         if ($attributes["contact_email"]) { $mod["targetAddress"][0]=$attributes["contact_email"]; }
         
-        //echo ("<pre>"); print_r($mod);
-        /*
-        // modifying a name is a bit fiddly
-        if ($attributes["firstname"] && $attributes["surname"]){
-            $mod["cn"][0]=$attributes["firstname"]." ".$attributes["surname"];
-            $mod["displayname"][0]=$attributes["firstname"]." ".$attributes["surname"];
-            $mod["name"][0]=$attributes["firstname"]." ".$attributes["surname"];
+    	// If the first name or surname need to be modified, then so do the cn and display name.
+        if (isset($attributes["firstname"]) || isset($attributes["surname"])){
+			$initials = isset($attributes["initials"]) ? $attributes["initials"] : '';
+			// Commas must be escaped in CN.
+			$mod["cn"][0] = $this->utilities()->escapeCharacters(
+					$this->formatUserDisplay($attributes["firstname"], $attributes["surname"], $initials)
+				);
+			$mod["displayname"][0] =  $this->formatUserDisplay($attributes["firstname"], $attributes["surname"], $initials);
         }
-        */
 
-        if (count($mod)==0) { return (false); }
+        if (count($mod)==0){ return (false); }
         return ($mod);
     }
+	
+	public function formatUserDisplay($firstName, $lastName, $initials = '')
+	{
+		$userDisplay = $this->userDisplay;
+		$userDisplay = str_replace('%<givenName>', $firstName, $userDisplay);
+		$userDisplay = str_replace('%<sn>', $lastName, $userDisplay);
+		$userDisplay = str_replace('%<initials>', $initials, $userDisplay);
+		$userDisplay = str_replace('  ', ' ', $userDisplay); // To avoid unintentional double spaces that may occur in formatting
+		
+		return trim($userDisplay);
+	}
     
     /**
     * Convert 8bit characters e.g. accented characters to UTF8 encoded characters
