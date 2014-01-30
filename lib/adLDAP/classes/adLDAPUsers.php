@@ -407,6 +407,22 @@ class adLDAPUsers {
             }
             $mod["userAccountControl"][0] = $this->accountControl($controlOptions);
         }
+		
+		// If the common name needs to be modified, so does the RDN, thus a rename is called.
+		if (isset($mod["cn"][0])) {
+			// Grab OU.  Full container name is required to modify RDN, so this should catch all containers.
+			$container = substr($userDn, strpos($userDn, ',OU') + 1); 
+			// str_replace() might not be nessesary if other PR is accepted.
+			$newRdn = 'CN=' . str_replace(',', '\,', $mod["cn"][0]); // Only the first part is required.
+			$result = @ldap_rename($this->adldap->getLdapConnection(), $userDn, $newRdn, $container, true);			
+			if ($result == false) { // Stop if the rename failed.
+				return false;
+			}
+			// Reset $userDn with new RDN so additional modifications can be performed.
+			$userDn = $newRdn . ',' . $container; 
+			// CN cannot be modified, so we don't want to pass it to ldap_modify().
+			unset($mod["cn"]); 
+		}
 
         // Do the update
         $result = @ldap_modify($this->adldap->getLdapConnection(), $userDn, $mod);
