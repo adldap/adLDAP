@@ -63,7 +63,7 @@ class adLDAPGroups {
     public function addGroup($parent,$child) {
 
         // Find the parent group's dn
-        $parentGroup = $this->ginfo($parent, array("cn"));
+        $parentGroup = $this->info($parent, array("cn"));
         if ($parentGroup[0]["dn"] === NULL) {
             return false; 
         }
