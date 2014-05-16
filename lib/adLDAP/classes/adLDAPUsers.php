@@ -126,10 +126,12 @@ class adLDAPUsers {
 
         // Determine the container
         $attributes["container"] = array_reverse($attributes["container"]);
-        $container = "OU=" . implode(", OU=", $attributes["container"]);
+         $container = (sizeof($attributes["container"])>0)? ", OU=" . implode(",OU=", $attributes["container"]):"";
+       
+       // $container = "OU=" . implode(", OU=", $attributes["container"]);
 
         // Add the entry
-        $result = @ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"][0] . ", " . $container . "," . $this->adldap->getBaseDn(), $add);
+        $result = @ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"][0] . $container . "," . $this->adldap->getBaseDn(), $add);
         if ($result != true) {
             return false;
         }
