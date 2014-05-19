@@ -567,7 +567,7 @@ class adLDAP {
     * @throws \Exception - if unable to bind to Domain Controller
     * @return bool
     */
-    function __construct($options = array()) {
+    function __construct(&$options = array()) {
         // You can specifically overide any of the default configuration options setup above
         if (count($options)>0) {
             if (array_key_exists("account_suffix",$options)) { $this->accountSuffix = $options["account_suffix"]; }
