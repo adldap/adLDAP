@@ -637,8 +637,9 @@ class adLDAPUsers {
         } else {
             $fields = array("samaccountname", "displayname");
         }
-        $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
-        $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
+        //$sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        //$entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
+        $entries = $this->paginated_search($filter, $fields);
 
         $usersArray = array();
         for ($i = 0; $i < $entries["count"]; $i++) {
@@ -776,7 +777,30 @@ class adLDAPUsers {
         $lastLogon = adLDAPUtils::convertWindowsTimeToUnixTime($userInfo[0]['lastLogonTimestamp'][0]);
         return $lastLogon;
     }
+    
+private function paginated_search($filter, $fields, $pageSize = 500)
+{
+    $cookie = '';
+    $result = [];
+    $result['count'] = 0;
+    do {
 
+        ldap_set_option($this->adldap->getLdapConnection(), LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_control_paged_result($this->adldap->getLdapConnection(), $pageSize, true, $cookie);
+
+        $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
+        $entries['count'] += $result['count'];
+
+        $result = array_merge($result, $entries);
+
+        ldap_control_paged_result_response($this->adldap->getLdapConnection(), $sr, $cookie);
+
+    } while ($cookie !== null && $cookie != '');
+
+    return $result;
+}
+    
 }
 
 ?>
