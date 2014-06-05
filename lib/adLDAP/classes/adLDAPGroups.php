@@ -63,7 +63,7 @@ class adLDAPGroups {
     public function addGroup($parent,$child) {
 
         // Find the parent group's dn
-        $parentGroup = $this->ginfo($parent, array("cn"));
+        $parentGroup = $this->info($parent, array("cn"));
         if ($parentGroup[0]["dn"] === NULL) {
             return false; 
         }
@@ -175,8 +175,8 @@ class adLDAPGroups {
         $add["description"] = $attributes["description"];
         //$add["member"] = $member_array; UNTESTED
 
-        $container = "OU=" . implode(",OU=", $attributes["container"]);
-        $result = ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"] . ", " . $container . "," . $this->adldap->getBaseDn(), $add);
+        $container = (sizeof($attributes["container"])>0)? ", OU=" . implode(",OU=", $attributes["container"]):"";
+        $result = ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"] . $container . "," . $this->adldap->getBaseDn(), $add);
         if ($result != true) { 
             return false; 
         }
@@ -338,7 +338,7 @@ class adLDAPGroups {
         
         // Search the directory for the members of a group
         $info = $this->info($group, array("member","cn"));
-        $groups = $info[0]["member"];
+        $groups = @$info[0]["member"];
         if (!is_array($groups)) {
             return false;   
         }
