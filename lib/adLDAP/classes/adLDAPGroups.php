@@ -338,7 +338,7 @@ class adLDAPGroups {
         
         // Search the directory for the members of a group
         $info = $this->info($group, array("member","cn"));
-        $groups = $info[0]["member"];
+        $groups = @$info[0]["member"];
         if (!is_array($groups)) {
             return false;   
         }
