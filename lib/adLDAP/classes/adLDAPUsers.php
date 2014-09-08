@@ -208,13 +208,16 @@ class adLDAPUsers {
     * @param bool $isGUID Is the username passed a GUID or a samAccountName
     * @return array
     */
-    public function info($username, $fields = NULL, $isGUID = false) {
+    public function info($username, $fields = NULL, $isGUID = false, $isMail = false) {
         if ($username === NULL) { return false; }
         if (!$this->adldap->getLdapBind()) { return false; }
 
         if ($isGUID === true) {
             $username = $this->adldap->utilities()->strGuidToHex($username);
             $filter = "objectguid=" . $username;
+        }
+        else if ($isMail === true) {
+            $filter = "mail=". $username;
         }
         else if (strpos($username, "@")) {
              $filter = "userPrincipalName=" . $username;
@@ -261,11 +264,11 @@ class adLDAPUsers {
     * @param bool $isGUID Is the username passed a GUID or a samAccountName
     * @return mixed
     */
-    public function infoCollection($username, $fields = NULL, $isGUID = false) {
+    public function infoCollection($username, $fields = NULL, $isGUID = false, $isMail = false) {
         if ($username === NULL) { return false; }
         if (!$this->adldap->getLdapBind()) { return false; }
         
-        $info = $this->info($username, $fields, $isGUID);
+        $info = $this->info($username, $fields, $isGUID, $isMail);
         
         if ($info !== false) {
             $collection = new \adLDAP\collections\adLDAPUserCollection($info, $this->adldap);
