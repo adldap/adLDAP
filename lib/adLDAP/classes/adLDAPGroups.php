@@ -298,6 +298,32 @@ class adLDAPGroups {
         }
         return true;
     }
+
+    /**
+     * Remove all users from a group
+     *
+     * @param string $group The group to remove users from
+     * @return bool
+     */
+    public function removeAllUsers($group) {
+        // Find parent and user distinguished names
+        $groupInfo = $this->info($group, array("member"));
+        if ($groupInfo[0]["dn"] === NULL || $groupInfo[0]["member"] === NULL) {
+            return false;
+        }
+
+        $groupDn = $groupInfo[0]["dn"];
+
+        unset($groupInfo[0]['member']['count']);
+
+        foreach ($groupInfo[0]["member"] as $member) {
+            $result = @ldap_mod_del($this->adldap->getLdapConnection(), $groupDn, array('member'=>$member));
+            if ($result == false) {
+                return false;
+            }
+        }
+        return true;
+    }
     
     /**
     * Remove a contact from a group
