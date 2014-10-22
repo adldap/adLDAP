@@ -573,6 +573,33 @@ class adLDAPUsers {
         }
         return false; 
     }
+
+    /**
+    * Loads a user's details from search fields and returns as an array
+    *
+    * @param string $username The username to query, required
+    * @param array $fields Fields to query, required
+    * @return array
+    */
+    public function getUserDetailsAsArrayFromUsername($username, $fields = array())
+    {
+        if (!$this->adldap->getLdapBind()){ return NULL; }
+        if ($username === null){ return "Missing compulsory field [username]"; }
+        if (count($fields) === 0){ return "No fields searched"; }
+        $filter = 'samaccountname='.$username;
+        $sr = @ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (ldap_count_entries($this->adldap->getLdapConnection(), $sr) > 0) { 
+            $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
+            $to_return = array();
+            foreach ($fields as $field)
+            {
+                if (array_key_exists(strtolower($field), $entries[0]))
+                    $to_return[$field] = $entries[0][strtolower($field)][0];
+            }
+            return $to_return;
+        }
+        return NULL;
+    }
     
     /**
     * Return a list of all users in AD that have a specific value in a field
