@@ -437,17 +437,24 @@ class adLDAPGroups {
     * 
     * @param string $groupName The group name to retrieve info about
     * @param array $fields Fields to retrieve
+    * @param bool $isGUID Is the groupName passed a GUID or a name
     * @return array
     */
-    public function info($groupName, $fields = NULL) {
+    public function info($groupName, $fields = NULL, $isGUID = false) {
         if ($groupName === NULL) { return false; }
         if (!$this->adldap->getLdapBind()) { return false; }
-        
-        if (stristr($groupName, '+')) {
-            $groupName = stripslashes($groupName);   
+
+        if ($isGUID === true) {
+            $filter = "objectguid=" . $this->adldap->utilities()->strGuidToHex($groupName);
+        }
+        else {
+            if (stristr($groupName, '+')) {
+                $groupName = stripslashes($groupName);   
+            }
+            $filter = "name=" . $this->adldap->utilities()->ldapSlashes($groupName);
         }
         
-        $filter = "(&(objectCategory=group)(name=" . $this->adldap->utilities()->ldapSlashes($groupName) . "))";
+        $filter = "(&(objectCategory=group)($filter))";
         if ($fields === NULL) { 
             $fields = array("member","memberof","cn","description","distinguishedname","objectcategory","samaccountname"); 
         }
@@ -484,13 +491,14 @@ class adLDAPGroups {
     * 
     * @param string $groupName The group name to retrieve info about
     * @param array $fields Fields to retrieve
+    * @param bool $isGUID Is the groupName passed a GUID or a name
     * @return \adLDAP\collections\adLDAPGroupCollection
     */
-    public function infoCollection($groupName, $fields = NULL) {
+    public function infoCollection($groupName, $fields = NULL, $isGUID = false) {
         if ($groupName === NULL) { return false; }
         if (!$this->adldap->getLdapBind()) { return false; }
         
-        $info = $this->info($groupName, $fields);
+        $info = $this->info($groupName, $fields, $isGUID);
         if ($info !== false) {
             $collection = new \adLDAP\collections\adLDAPGroupCollection($info, $this->adldap);
             return $collection;
