@@ -867,6 +867,7 @@ class adLDAP {
         if (isset($attributes["description"])){ $mod["description"][0]=$attributes["description"]; }
         if (isset($attributes["display_name"])){ $mod["displayName"][0]=$attributes["display_name"]; }
         if (isset($attributes["email"])){ $mod["mail"][0]=$attributes["email"]; }
+        if (isset($attributes["employee_id"])){ $mod["employeeID"][0]=$attributes["employee_id"]; }
         if (isset($attributes["expires"])){ $mod["accountExpires"][0]=$attributes["expires"]; } //unix epoch format?
         if (isset($attributes["firstname"])){ $mod["givenName"][0]=$attributes["firstname"]; }
         if (isset($attributes["home_directory"])){ $mod["homeDirectory"][0]=$attributes["home_directory"]; }
