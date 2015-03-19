@@ -401,7 +401,10 @@ class adLDAP {
     * 
     * @param int $adPort
     */
-    public function setPort($adPort) { 
+    public function setPort($adPort) {
+        if (!is_numeric($adPort)) {
+            throw new adLDAPException("[ad_port] must be a number; '$adPort' given");
+        }
         $this->adPort = $adPort; 
     } 
     
@@ -621,9 +624,9 @@ class adLDAP {
         // Connect to the AD/LDAP server as the username/password
         $domainController = $this->randomController();
         if ($this->useSSL) {
-            $this->ldapConnection = ldap_connect("ldaps://" . $domainController, $this->adPort);
+            $this->ldapConnection = ldap_connect("ldaps://" . $domainController, $this->getPort());
         } else {
-            $this->ldapConnection = ldap_connect("ldap://" . $domainController, $this->adPort);
+            $this->ldapConnection = ldap_connect("ldap://" . $domainController, $this->getPort());
         }
                
         // Set some ldap options for talking to AD
@@ -971,7 +974,7 @@ class adLDAP {
     * @return bool
     */ 
     protected function pingController($host) {
-        $port = $this->adPort; 
+        $port = $this->getPort(); 
         fsockopen($host, $port, $errno, $errstr, 10); 
         if ($errno > 0) {
             return false;
