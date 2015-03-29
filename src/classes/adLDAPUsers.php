@@ -480,14 +480,28 @@ class adLDAPUsers {
     }
 
     /**
+	 * Check if we can to a real password change, not just a password reset
+	 *
+	 * Requires PHP 5.4 >= 5.4.26, PHP 5.5 >= 5.5.10 or PHP 5.6 >= 5.6.0
+	 *
+	 * @return boolean
+	 */
+	public static function changePasswordSupported()
+	{
+		return function_exists('ldap_modify_batch');
+	}
+
+    /**
     * Set the password of a user - This must be performed over SSL
     *
     * @param string $username The username to modify
     * @param string $password The new password
     * @param bool $isGUID Is the username passed a GUID or a samAccountName
+	* @param string $old_password old password for password change, if supported
     * @return bool
     */
-    public function password($username, $password, $isGUID = false) {
+    public function password($username, $password, $isGUID = false, $old_password=null)
+    {
         if ($username === NULL) { return false; }
         if ($password === NULL) { return false; }
         if (!$this->adldap->getLdapBind()) { return false; }
@@ -501,10 +515,30 @@ class adLDAPUsers {
         }
 
         $add=array();
-        $add["unicodePwd"][0] = $this->encodePassword($password);
 
-        $result = @ldap_mod_replace($this->adldap->getLdapConnection(), $userDn, $add);
-        if ($result === false) {
+		if (empty($old_password) || !self::changePasswordSupported())
+		{
+			$add["unicodePwd"][0] = $this->encodePassword($password);
+
+			$result = @ldap_mod_replace($this->adldap->getLdapConnection(), $userDn, $add);
+		}
+		else
+		{
+			$mods = array(
+				array(
+					"attrib"  => "unicodePwd",
+					"modtype" => LDAP_MODIFY_BATCH_REMOVE,
+					"values"  => array($this->encodePassword($old_password)),
+				),
+				array(
+					"attrib"  => "unicodePwd",
+					"modtype" => LDAP_MODIFY_BATCH_ADD,
+					"values"  => array($this->encodePassword($password)),
+				),
+			);
+			$result = ldap_modify_batch($this->adldap->getLdapConnection(), $userDn, $mods);
+		}
+        if ($result === false){
             $err = ldap_errno($this->adldap->getLdapConnection());
             if ($err) {
                 $msg = 'Error ' . $err . ': ' . ldap_err2str($err) . '.';
@@ -517,6 +551,7 @@ class adLDAPUsers {
                 return false;
             }
         }
+
         return true;
     }
 
