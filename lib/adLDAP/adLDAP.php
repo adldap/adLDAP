@@ -857,6 +857,8 @@ class adLDAP {
         if (isset($attributes["address_city"])){ $mod["l"][0]=$attributes["address_city"]; }
         if (isset($attributes["address_code"])){ $mod["postalCode"][0]=$attributes["address_code"]; }
         //if ($attributes["address_country"]){ $mod["countryCode"][0]=$attributes["address_country"]; } // use country codes?
+        if (isset($attributes["countryCode"])){ $mod["countryCode"][0]=$attributes["countryCode"]; }
+        if (isset($attributes["co"])){ $mod["co"][0]=$attributes["co"]; }
         if (isset($attributes["address_country"])){ $mod["c"][0]=$attributes["address_country"]; }
         if (isset($attributes["address_pobox"])){ $mod["postOfficeBox"][0]=$attributes["address_pobox"]; }
         if (isset($attributes["address_state"])){ $mod["st"][0]=$attributes["address_state"]; }
