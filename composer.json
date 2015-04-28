@@ -35,5 +35,10 @@
 		"psr-0": {
 			"": "lib/"
 		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-trunk": "5.0.x-dev"
+		}
 	}
 }
