@@ -862,7 +862,7 @@ class adLDAP {
         if (isset($attributes["address_state"])){ $mod["st"][0]=$attributes["address_state"]; }
         if (isset($attributes["address_street"])){ $mod["streetAddress"][0]=$attributes["address_street"]; }
         if (isset($attributes["company"])){ $mod["company"][0]=$attributes["company"]; }
-        if (isset($attributes["change_password"])){ $mod["pwdLastSet"][0]=0; }
+        if (isset($attributes["change_password"])){ $mod["pwdLastSet"][0]=($attributes["change_password"]?0:-1); }
         if (isset($attributes["department"])){ $mod["department"][0]=$attributes["department"]; }
         if (isset($attributes["description"])){ $mod["description"][0]=$attributes["description"]; }
         if (isset($attributes["display_name"])){ $mod["displayName"][0]=$attributes["display_name"]; }
