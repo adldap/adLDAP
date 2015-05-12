@@ -926,16 +926,10 @@ class adLDAP {
     * Convert 8bit characters e.g. accented characters to UTF8 encoded characters
     */
     protected function encode8Bit(&$item, $key) {
-        $encode = false;
-        if (is_string($item)) {
-            for ($i=0; $i<strlen($item); $i++) {
-                if (ord($item[$i]) >> 7) {
-                    $encode = true;
-                }
+        if (is_string($item) && $key != 'password') {
+            if (mb_detect_encoding($item, 'UTF-8', true) === false) {
+                $item = utf8_encode($item);
             }
-        }
-        if ($encode === true && $key != 'password') {
-            $item = utf8_encode($item);   
         }
     }
     

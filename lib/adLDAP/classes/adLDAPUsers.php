@@ -578,19 +578,24 @@ class adLDAPUsers {
     * Return a list of all users in AD that have a specific value in a field
     *
     * @param bool $includeDescription Return a description of the user
-    * @param string $searchField Field to search search for
-    * @param string $searchFilter Value to search for in the specified field
+    * @param array $searchField Field to search search for
+    * @param array $searchFilter Value to search for in the specified field
     * @param bool $sorted Sort the user accounts
     * @return array
     */
     public function find($includeDescription = false, $searchField = false, $searchFilter = false, $sorted = true) {
-        if (!$this->adldap->getLdapBind()) { return false; }
+        if (!$this->adldap->getLdapBind()){ return false; }
           
         // Perform the search and grab all their details
         $searchParams = "";
-        if ($searchField) {
+        if (!is_array($searchField)) {
             $searchParams = "(" . $searchField . "=" . $searchFilter . ")";
-        }                           
+        }
+        elseif (is_array($searchField)) {
+            for($i = 0 ; $i < count($searchField); $i++) {
+                $searchParams .= "(" . $searchField[$i] . "=" . $searchFilter[$i] . ")";
+            }
+        }
         $filter = "(&(objectClass=user)(samaccounttype=" . adLDAP::ADLDAP_NORMAL_ACCOUNT .")(objectCategory=person)" . $searchParams . ")";
         $fields = array("samaccountname","displayname");
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
@@ -608,7 +613,7 @@ class adLDAPUsers {
                 array_push($usersArray, $entries[$i]["samaccountname"][0]);
             }
         }
-        if ($sorted) { 
+        if ($sorted) {
           asort($usersArray); 
         }
         return ($usersArray);
