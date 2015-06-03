@@ -516,7 +516,7 @@ class adLDAPGroups {
         if ($sAMAaccountType !== null) {
             $filter .= '(samaccounttype='. $sAMAaccountType .')';
         }
-        $filter .= '(cn=' . $search . '))';
+        $filter .= '(cn=' . $this->adldap->utilities()->ldapSlashes($search) . '))';
         // Perform the search and grab all their details
         $fields = array("samaccountname", "description");
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
