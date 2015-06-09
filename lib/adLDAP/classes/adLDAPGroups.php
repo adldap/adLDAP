@@ -349,6 +349,8 @@ class adLDAPGroups {
     * @param bool $recursive Recursively get group members
     * @return array
     */
+    protected $groupsDone = array();
+    
     public function members($group, $recursive = NULL) {
         if (!$this->adldap->getLdapBind()) { return false; }
         if ($recursive === NULL){ $recursive = $this->adldap->getRecursiveGroups(); } // Use the default option if they haven't set it 
@@ -361,7 +363,9 @@ class adLDAPGroups {
  
         $userArray = array();
 
-        for ($i=0; $i<$users["count"]; $i++) { 
+        for ($i=0; $i<$users["count"]; $i++) {
+             if (in_array($users[$i], $this->groupsDone)) continue;
+             $this->groupsDone[] = $users[$i];
              $filter = "(&(objectCategory=person)(distinguishedName=" . $this->adldap->utilities()->ldapSlashes($users[$i]) . "))";
              $fields = array("samaccountname", "distinguishedname", "objectClass");
              $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
