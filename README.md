@@ -1,74 +1,72 @@
-# PHP LDAP CLASS FOR MANIPULATING ACTIVE DIRECTORY
+## Description
 
-*Current Stable Version 4.0.0 https://github.com/adldap/adLDAP/releases/tag/v4.0.4*
+> **ATTENTION**: Version v5.0.0 is in heavy development, however it is close to completion. Use 'dev-master' at you're own risk.
 
-*Next Version 5.0.0*
+adLDAP is a tested PHP class library that provides LDAP authentication and Active Directory management tools.
 
-Written by Scott Barnett, Richard Hyland
-email: scott@wiggumworld.com, adldap@richardhyland.com
-https://github.com/adldap/adLDAP/
+## Index
 
-## ABOUT
+> **Note:** Documentation is incomplete as Adldap is currently in the upgrade process to version `5.0.0`. They will be fully featured and complete in the coming weeks.
 
-adLDAP is a PHP class that provides LDAP authentication and integration with Active Directory.
+- [Installation](#installation)
+- [Testing With A Public AD Server](#need-to-test-an-ldap-connection)
+- [Upgrading to v5 from v4](docs/UPGRADING.md)
+- [Getting Started](docs/GETTING-STARTED.md)
+- Usage 
+ - [Search Functions](docs/SEARCH-FUNCTIONS.md)
+ - [Computer Functions](docs/COMPUTER-FUNCTIONS.md)
+ - [Contact Functions](docs/CONTACT-FUNCTIONS.md)
+ - [Exchange Functions](docs/EXCHANGE-FUNCTIONS.md)
+ - [Folder Functions](docs/FOLDER-FUNCTIONS.md)
+ - [Group Functions](docs/GROUP-FUNCTIONS.md)
+ - [User Functions](docs/USER-FUNCTIONS.md)
 
-We'd appreciate any improvements or additions to be submitted back
-to benefit the entire community :)
+## Requirements
 
-## REQUIREMENTS
+To use adLDAP, your sever must support:
 
-adLDAP requires PHP 5 and both the LDAP (http://php.net/ldap) and SSL (http://php.net/openssl) libraries
-adLDAP version 5.0.0 will require PHP 5.3+
+- PHP 5.4 or greater
+- PHP LDAP Extension
 
-## INSTALLATION
 
-adLDAP is not an application, but a class library designed to integrate into your own applications.
+## Optional Requirements
 
-The core of adLDAP is contained in the 'lib/adLDAP' directory.  Simply copy/rename this directory inside your own
-projects.
+If your AD server requires SSL, your server must support the following libraries:
 
-Edit the file ``lib/adldap/adLDAP.php`` and change the configuration variables near the top, specifically
-those for domain controllers, base dn and account suffix, and if you want to perform anything more complex
-than use authentication you'll also need to set the admin username and password variables too.
+- PHP SSL Libraries (http://php.net/openssl)
 
-From within your code simply require the adLDAP.php file and call it like so
+## Installation
 
-    use \adLDAP;
-    require_once(dirname(__FILE__) . '/adLDAP.php');
-    $adldap = new adLDAP();
+adLDAP has moved to a composer based installation. If you'd like to use adLDAP without an auto-loader, you'll
+have to require the files inside the project `src/` directory yourself.
 
-It would be better to wrap it in a try/catch though
+Insert Adldap into your `composer.json` file:
 
-    use \adLDAP;
-    try {
-        $adldap = new adLDAP();
-    }
-    catch (adLDAPException $e) {
-        echo $e;
-        exit();   
-    }
+    "adldap/adldap": "5.0.*"
+   
+Run `composer update`
 
-Then simply call commands against it e.g.
+You're good to go!
 
-``$adldap->authenticate($username, $password);``
+## Need to test an LDAP connection?
 
-or 
+If you need to test something with access to an LDAP server, the generous folks at [Georgia Tech](http://drupal.gatech.edu/handbook/public-ldap-server) have you covered.
 
-``$adldap->group()->members($groupName);``
+Use the following configuration:
 
-## DOCUMENTATION
-
-You can find our website at https://github.com/adldap/adLDAP/ or the class documentation at
-
-https://github.com/adldap/adLDAP/wiki/adLDAP-Developer-API-Reference
-
-## LICENSE
-
-This library is free software; you can redistribute it and/or modify it under the terms of the 
-GNU Lesser General Public License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-See the GNU Lesser General Public License for more details or LICENSE.txt distributed with
-this class.
+    $config = array(
+        'account_suffix' => "@gatech.edu",
+    
+        'domain_controllers' => array("whitepages.gatech.edu"),
+    
+        'base_dn' => 'dc=whitepages,dc=gatech,dc=edu',
+    
+        'admin_username' => '',
+    
+        'admin_password' => '',
+    );
+    
+    $ad = new Adldap($config);
+    
+However while useful for basic testing, the queryable data only includes user data, so if you're looking for testing with any other information
+or functionality such as modification, you'll have to use you're own server.
