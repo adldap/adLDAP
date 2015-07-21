@@ -886,7 +886,7 @@ class adLDAP {
         if (isset($attributes["ipphone"])){ $mod["ipphone"][0]=$attributes["ipphone"]; }
         if (isset($attributes["web_page"])){ $mod["wWWHomePage"][0]=$attributes["web_page"]; }
         if (isset($attributes["fax"])){ $mod["facsimileTelephoneNumber"][0]=$attributes["fax"]; }
-        if (isset($attributes["enabled"])){ $mod["userAccountControl"][0]=$attributes["enabled"]; }
+//        if (isset($attributes["enabled"])){ $mod["userAccountControl"][0]=$attributes["enabled"]; }
         if (isset($attributes["homephone"])){ $mod["homephone"][0]=$attributes["homephone"]; }
 
         // Distribution List specific schema
