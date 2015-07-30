@@ -743,6 +743,8 @@ class Ldap implements ConnectionInterface
 
         // Go through each character to ignore
         foreach ($ignores as $charToIgnore) {
+            // Avoid accidentally removing backslashes on line 752 by skipping blank ignores chars
+            if(!$charToIgnore) continue;
             // Convert the character to ignore to a hex
             $hexed = bin2hex($charToIgnore);
 
@@ -783,8 +785,12 @@ class Ldap implements ConnectionInterface
                 $escapes = $escapeDn;
                 break;
             case 3:
-                // If both LDAP_ESCAPE_FILTER and LDAP_ESCAPE_DN are used
-                $escapes = array_merge($escapeFilter, $escapeDn);
+                // If both LDAP_ESCAPE_FILTER and LDAP_ESCAPE_DN are used.
+                /* 
+                 * array_slice was added here to remove the first '\' in escapeDn
+                 * which would escape all of the characters from $escapeFilter
+                */
+                $escapes = array_merge($escapeFilter, array_slice($escapeDn, 1));
                 break;
             default:
                 return false;

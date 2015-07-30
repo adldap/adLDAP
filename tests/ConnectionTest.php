@@ -89,11 +89,125 @@ class ConnectionTest extends FunctionalTestCase
         $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
 
         $ldap->shouldAllowMockingProtectedMethods(true);
-
-        $expected = 'testing\3d\2b\3c\3e\22\22\3b:\23\5c28\5c29*\5c5cx00';
+        
+        // echo ldap_escape('testing=+<>"";:#()*\x00');
+        // results in 'testing\3d\2b\3c\3e\22\22\3b:\23\28\29*\5cx00'
+        $expected = 'testing\3d\2b\3c\3e\22\22\3b:\23\28\29*\5cx00';
 
         $result = $ldap->escapeManual('testing=+<>"";:#()*\x00', '*', 3);
 
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Where tests specific to manually
+     * escaping strings if ldap_escape()
+     * is not available.
+     * 
+     * Edits made to src/Connections/Ldap.php
+     * lines 747 & 793
+     */
+    public function testEscapeManualNoIgnoreFlag0()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = '\61\62\63\31\32\33\5c\2a\28\29\2c\3d\2b\3c\3e\3b\22\23';
+        $flags =0;
+        $ignore = '';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualNoIgnoreFlag1()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = 'abc123\5c\2a\28\29,=+<>;"#';
+        $flags =1;
+        $ignore = '';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualNoIgnoreFlag2()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = 'abc123\5c*()\2c\3d\2b\3c\3e\3b\22\23';
+        $flags =2;
+        $ignore = '';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualNoIgnoreFlag3()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = 'abc123\5c\2a\28\29\2c\3d\2b\3c\3e\3b\22\23';
+        $flags =3;
+        $ignore = '';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualIgnore321Flag0()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = '\61\62\63123\5c\2a\28\29\2c\3d\2b\3c\3e\3b\22\23';
+        $flags =0;
+        $ignore = '321';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualIgnore321Flag1()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = 'abc123\5c\2a\28\29,=+<>;"#';
+        $flags =1;
+        $ignore = '321';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualIgnore321Flag2()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = 'abc123\5c*()\2c\3d\2b\3c\3e\3b\22\23';
+        $flags =2;
+        $ignore = '321';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function testEscapeManualIgnore321Flag3()
+    {
+        $stringToEscape = 'abc123\*(),=+<>;"#';
+        $expectedOutput = 'abc123\5c\2a\28\29\2c\3d\2b\3c\3e\3b\22\23';
+        $flags =3;
+        $ignore = '321';
+
+        $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
+        $ldap->shouldAllowMockingProtectedMethods(true);
+        $result = $ldap->escapeManual($stringToEscape, $ignore, $flags);
+        $this->assertEquals($expectedOutput, $result);
     }
 }
