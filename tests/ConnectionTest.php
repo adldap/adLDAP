@@ -89,7 +89,9 @@ class ConnectionTest extends FunctionalTestCase
         $ldap = $this->mock('Adldap\Connections\Ldap')->makePartial();
 
         $ldap->shouldAllowMockingProtectedMethods(true);
-
+        
+        // echo ldap_escape('testing=+<>"";:#()*\x00');
+        // results in 'testing\3d\2b\3c\3e\22\22\3b:\23\28\29*\5cx00'
         $expected = 'testing\3d\2b\3c\3e\22\22\3b:\23\28\29*\5cx00';
 
         $result = $ldap->escapeManual('testing=+<>"";:#()*\x00', '*', 3);
