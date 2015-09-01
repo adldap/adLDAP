@@ -797,7 +797,7 @@ private function paginated_search($filter, $fields, $pageSize = 500)
         ldap_control_paged_result_response($this->adldap->getLdapConnection(), $sr, $cookie);
 
     } while ($cookie !== null && $cookie != '');
-
+ldap_control_paged_result($this->adldap->getLdapConnection(), 0);
     return $result;
 }
     
