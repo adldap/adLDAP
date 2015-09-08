@@ -3,6 +3,7 @@
 namespace adLDAP\classes;
 
 use adLDAP\adLDAP;
+use adLDAP\adLDAPException;
 
 /**
  * PHP LDAP CLASS FOR MANIPULATING ACTIVE DIRECTORY 
@@ -80,22 +81,22 @@ class adLDAPUsers {
     public function create($attributes) {
         // Check for compulsory fields
         if (!array_key_exists("username", $attributes)) {
-            return "Missing compulsory field [username]";
+            throw new adLDAPException("Missing compulsory field [username]");
         }
         if (!array_key_exists("firstname", $attributes)) {
-            return "Missing compulsory field [firstname]";
+            throw new adLDAPException("Missing compulsory field [firstname]");
         }
         if (!array_key_exists("surname", $attributes)) {
-            return "Missing compulsory field [surname]";
+            throw new adLDAPException("Missing compulsory field [surname]");
         }
         if (!array_key_exists("email", $attributes)) {
-            return "Missing compulsory field [email]";
+            throw new adLDAPException("Missing compulsory field [email]");
         }
         if (!array_key_exists("container", $attributes)) {
-            return "Missing compulsory field [container]";
+            throw new adLDAPException("Missing compulsory field [container]");
         }
         if (!is_array($attributes["container"])) {
-            return "Container attribute must be an array.";
+            throw new adLDAPException("Container attribute must be an array.");
         }
 
         if (array_key_exists("password", $attributes) && (!$this->adldap->getUseSSL() && !$this->adldap->getUseTLS())) {
@@ -133,7 +134,7 @@ class adLDAPUsers {
         // Add the entry
         $result = @ldap_add($this->adldap->getLdapConnection(), "CN=" . $add["cn"][0] . $container . "," . $this->adldap->getBaseDn(), $add);
         if ($result != true) {
-            return false;
+            throw new adLDAPException("Error during add '".ldap_error($this->adldap->getLdapConnection())."'");
         }
         return true;
     }
@@ -273,10 +274,10 @@ class adLDAPUsers {
      */
     public function info($username, $fields = NULL, $isGUID = false) {
         if ($username === NULL) {
-            return false;
+            throw new adLDAPException("Username empty");
         }
         if (!$this->adldap->getLdapBind()) {
-            return false;
+            throw new adLDAPException("Ldap not binded");
         }
 
         if ($isGUID === true) {
@@ -461,7 +462,7 @@ class adLDAPUsers {
      */
     public function modify($username, $attributes, $isGUID = false) {
         if ($username === NULL) {
-            return "Missing compulsory field [username]";
+            throw new adLDAPException("Missing compulsory field [username]");
         }
         if (array_key_exists("password", $attributes) && !$this->adldap->getUseSSL() && !$this->adldap->getUseTLS()) {
             throw new \adLDAP\adLDAPException('SSL/TLS must be configured on your webserver and enabled in the class to set passwords.');
@@ -470,7 +471,7 @@ class adLDAPUsers {
         // Find the dn of the user
         $userDn = $this->dn($username, $isGUID);
         if ($userDn === false) {
-            return false;
+            throw new adLDAPException("dn of the user empty");
         }
 
         // Translate the update to the LDAP schema                
@@ -478,7 +479,7 @@ class adLDAPUsers {
 
         // Check to see if this is an enabled status update
         if (!$mod && !array_key_exists("enabled", $attributes)) {
-            return false;
+            throw new adLDAPException("status update not enabled");
         }
 
         // Set the account control attribute (only if specified)
@@ -494,7 +495,7 @@ class adLDAPUsers {
         // Do the update
         $result = @ldap_modify($this->adldap->getLdapConnection(), $userDn, $mod);
         if ($result == false) {
-            return false;
+            throw new adLDAPException("Error during modify '".ldap_error($this->adldap->getLdapConnection())."'");
         }
         return true;
     }
