@@ -1,6 +1,6 @@
 ## Description
 
-> **ATTENTION**: Version v5.0.0 is in heavy development, however it is close to completion. Use 'dev-master' at you're own risk.
+> **ATTENTION**: Version v5.0.0 is in heavy development, however it is close to completion. Use 'dev-master' at your own risk.
 
 adLDAP is a tested PHP class library that provides LDAP authentication and Active Directory management tools.
 
@@ -37,7 +37,7 @@ If your AD server requires SSL, your server must support the following libraries
 
 ## Installation
 
-adLDAP has moved to a composer based installation. If you'd like to use adLDAP without an auto-loader, you'll
+adLDAP has moved to a Composer based installation. If you'd like to use adLDAP without an auto-loader, you'll
 have to require the files inside the project `src/` directory yourself.
 
 Insert Adldap into your `composer.json` file:
@@ -69,4 +69,4 @@ Use the following configuration:
     $ad = new Adldap($config);
     
 However while useful for basic testing, the queryable data only includes user data, so if you're looking for testing with any other information
-or functionality such as modification, you'll have to use you're own server.
+or functionality such as modification, you will have to use your own server.
