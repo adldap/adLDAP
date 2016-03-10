@@ -695,8 +695,6 @@ class adLDAP {
     	/** @noinspection PhpUndefinedClassInspection */
 		Logging::var_trace('username', $username);
 		/** @noinspection PhpUndefinedClassInspection */
-		Logging::var_trace('password', $password);
-		/** @noinspection PhpUndefinedClassInspection */
 		Logging::var_trace('preventRebind', $preventRebind);
 
         // Prevent null binding
@@ -718,7 +716,7 @@ class adLDAP {
         }
         
 		/** @noinspection PhpUndefinedClassInspection */
-		Logging::trace('ldap_bind(' . $this->ldapConnection . ', ' . $username . $this->accountSuffix . ', ' . $password);
+		Logging::trace('ldap_bind(' . $this->ldapConnection . ', ' . $username . $this->accountSuffix . ', $password');
 
         // Bind as the user        
         $ret = true;
@@ -730,7 +728,7 @@ class adLDAP {
         // Once we've checked their details, kick back into admin mode if we have it
         if ($this->adminUsername !== NULL && !$preventRebind) {
 			/** @noinspection PhpUndefinedClassInspection */
-			Logging::trace('ldap_bind(' . $this->ldapConnection . ', ' . $this->adminUsername . $this->accountSuffix . ', ' . $this->adminPassword);
+			Logging::trace('ldap_bind(' . $this->ldapConnection . ', ' . $this->adminUsername . $this->accountSuffix . ', $this->adminPassword');
 
             $this->ldapBind = @ldap_bind($this->ldapConnection, $this->adminUsername . $this->accountSuffix , $this->adminPassword);
             if (!$this->ldapBind) {
