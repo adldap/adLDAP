@@ -1,5 +1,5 @@
 {
-	"name": "cupdx/adldap",
+	"name": "adldap/adldap",
 	"type": "library",
 	"description": "adLDAP, PHP LDAP library for manipulating Active Directory",
 	"keywords": [
