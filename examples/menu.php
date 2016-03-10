@@ -1,4 +1,10 @@
 <?php
+/**
+ * @mainpage  Demonstration of Doxygen on the adLDAP sample project
+ *
+ *            This section is basically html code to place on the first (<i>main</i>) page.
+ */
+
 session_start();
 ?>
 <html>
