@@ -46,6 +46,10 @@ namespace adLDAP;
 * Before asking questions, please read the Documentation at
 * http://adldap.sourceforge.net/wiki/doku.php?id=api
 */
+use /** @noinspection PhpUndefinedNamespaceInspection */
+    /** @noinspection PhpUndefinedClassInspection */
+    Cu\Logging\Helpers\Logging;
+
 require_once(dirname(__FILE__) . '/collections/adLDAPCollection.php');
 require_once(dirname(__FILE__) . '/classes/adLDAPGroups.php');
 require_once(dirname(__FILE__) . '/classes/adLDAPUsers.php');
@@ -59,6 +63,7 @@ class adLDAP {
     
     /**
      * Define the different types of account in AD
+     * @extract [ADLDAP] LDAP constants
      */
     const ADLDAP_NORMAL_ACCOUNT = 805306368;
     const ADLDAP_WORKSTATION_TRUST = 805306369;
@@ -78,6 +83,7 @@ class adLDAP {
     * The default port for LDAPS SSL connections
     */
     const ADLDAP_LDAPS_PORT = '636';
+    // @extract_end
     
     /**
     * The account suffix for your domain, can be set when the class is invoked
@@ -101,9 +107,9 @@ class adLDAP {
     * @var int 
     */ 
     protected $adPort = self::ADLDAP_LDAP_PORT; 
-	
+
     /**
-    * Array of domain controllers. Specifiy multiple controllers if you
+    * Array of domain controllers. Specify multiple controllers if you
     * would like the class to balance the LDAP queries amongst multiple servers
     * 
     * @var array
@@ -148,7 +154,7 @@ class adLDAP {
     
     /**
     * Use SSO  
-    * To indicate to adLDAP to reuse password set by the brower through NTLM or Kerberos 
+    * To indicate to adLDAP to reuse password set by the browser through NTLM or Kerberos
     * 
     * @var bool
     */
@@ -390,7 +396,7 @@ class adLDAP {
     /**
     * Get the list of domain controllers
     * 
-    * @return void
+    * @return array
     */
     public function getDomainControllers() {
           return $this->domainControllers;
@@ -521,7 +527,7 @@ class adLDAP {
     * Requires ldap_sasl_bind support. Be sure --with-ldap-sasl is used when configuring PHP otherwise this function will be undefined. 
     * 
     * @param bool $useSSO
-    * @return void
+    * @throws adLDAPException
     */
     public function setUseSSO($useSSO) {
           if ($useSSO === true && !$this->ldapSaslSupported()) {
@@ -564,7 +570,7 @@ class adLDAP {
     * Tries to bind to the AD domain over LDAP or LDAPs
     * 
     * @param array $options Array of options to pass to the constructor
-    * @throws \Exception - if unable to bind to Domain Controller
+    * @throws adLDAPException - if unable to bind to Domain Controller
     * @return bool
     */
     function __construct($options = array()) {
@@ -616,6 +622,7 @@ class adLDAP {
     * Connects and Binds to the Domain Controller
     * 
     * @return bool
+    * @throws adLDAPException
     */
     public function connect() {
         // Connect to the AD/LDAP server as the username/password
@@ -682,14 +689,22 @@ class adLDAP {
     * @param string $password A user's AD password
     * @param bool optional $preventRebind
     * @return bool
+    * @throws adLDAPException
     */
     public function authenticate($username, $password, $preventRebind = false) {
+    	/** @noinspection PhpUndefinedClassInspection */
+		Logging::var_trace('username', $username);
+		/** @noinspection PhpUndefinedClassInspection */
+		Logging::var_trace('preventRebind', $preventRebind);
+
         // Prevent null binding
         if ($username === NULL || $password === NULL) { return false; } 
         if (empty($username) || empty($password)) { return false; }
         
         // Allow binding over SSO for Kerberos
         if ($this->useSSO && $_SERVER['REMOTE_USER'] && $_SERVER['REMOTE_USER'] == $username && $this->adminUsername === NULL && $_SERVER['KRB5CCNAME']) { 
+			/** @noinspection PhpUndefinedClassInspection */
+			Logging::trace('putenv("KRB5CCNAME="' . $_SERVER['KRB5CCNAME'] . '" and perform ldap_sasl_bind');
             putenv("KRB5CCNAME=" . $_SERVER['KRB5CCNAME']);
             $this->ldapBind = @ldap_sasl_bind($this->ldapConnection, NULL, NULL, "GSSAPI");
             if (!$this->ldapBind) {
@@ -700,6 +715,9 @@ class adLDAP {
             }
         }
         
+		/** @noinspection PhpUndefinedClassInspection */
+		Logging::trace('ldap_bind(' . $this->ldapConnection . ', ' . $username . $this->accountSuffix . ', $password');
+
         // Bind as the user        
         $ret = true;
         $this->ldapBind = @ldap_bind($this->ldapConnection, $username . $this->accountSuffix, $password);
@@ -707,8 +725,11 @@ class adLDAP {
             $ret = false; 
         }
         
-        // Cnce we've checked their details, kick back into admin mode if we have it
+        // Once we've checked their details, kick back into admin mode if we have it
         if ($this->adminUsername !== NULL && !$preventRebind) {
+			/** @noinspection PhpUndefinedClassInspection */
+			Logging::trace('ldap_bind(' . $this->ldapConnection . ', ' . $this->adminUsername . $this->accountSuffix . ', $this->adminPassword');
+
             $this->ldapBind = @ldap_bind($this->ldapConnection, $this->adminUsername . $this->accountSuffix , $this->adminPassword);
             if (!$this->ldapBind) {
                 // This should never happen in theory

@@ -1,6 +1,11 @@
 <?php
 namespace adLDAP\classes;
 use adLDAP\adLDAP;
+use /** @noinspection PhpUndefinedNamespaceInspection */
+	/** @noinspection PhpUndefinedClassInspection */
+	Cu\Logging\Helpers\Logging;
+use Exception;
+
 /**
  * PHP LDAP CLASS FOR MANIPULATING ACTIVE DIRECTORY 
  * Version 5.0.0
@@ -229,8 +234,27 @@ class adLDAPUsers {
         if (!in_array("objectsid", $fields)) {
             $fields[] = "objectsid";
         }
-        $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
-        $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
+
+	    try
+	    {
+		    $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+	    } catch (Exception $e)
+	    {
+		    Logging::var_trace('filter', $filter);
+		    Logging::var_trace('fields', $fields);
+		    throw new Exception($e->getMessage() . "\nfilter = '" . $filter . "'\nfields = " . print_r($fields, true), 0, $e);
+	    }
+
+	    try
+	    {
+		    /** @noinspection PhpUndefinedVariableInspection */
+		    $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
+	    } catch (Exception $e)
+	    {
+		    /** @noinspection PhpUndefinedVariableInspection */
+		    Logging::var_trace('sr', $sr);
+		    throw new Exception($e->getMessage() . "\nsr = " . print_r($sr, true), 0, $e);
+	    }
         
         if (isset($entries[0])) {
             if ($entries[0]['count'] >= 1) {
