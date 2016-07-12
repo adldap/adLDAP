@@ -19,19 +19,26 @@ of previously returning false.
 
 The arguments for finding a user has been changed from:
 
-    $adldap->user()->find($includeDescription = false, $searchField = false, $searchFilter = false, $sorted = true)
+```php
+$adldap->user()->find($includeDescription = false, $searchField = false, $searchFilter = false, $sorted = true)
+```
 
 To:
 
-    $adldap->user()->find($includeDescription = false, $searchArray = array(), $sorted = true))
+```php
+$adldap->user()->find($includeDescription = false, $searchArray = array(), $sorted = true))
+```
     
 This allows you to search for multiple parameters when looking for a user. [Thanks To](https://github.com/adldap/adLDAP/pull/17)
 
-
+```php
 $adldap->group()->search($sAMAaccountType = Adldap::ADLDAP_SECURITY_GLOBAL_GROUP, $includeDescription = false, $search = "*", $sorted = true);
+```
 
 Has Changed to:
 
+```php
 $adldap->group()->search($sAMAaccountType = Adldap::ADLDAP_SECURITY_GLOBAL_GROUP, $select = array(), $sorted = true);
+```
 
 Removed function $adldap->group()->cn();
