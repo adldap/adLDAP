@@ -243,9 +243,9 @@ class AdldapUsers extends AbstractAdldapQueryable
         }
 
         if ($enabled) {
-            $controlOptions = ['NORMAL_ACCOUNT'];
+            $controlOptions = ['NORMAL_ACCOUNT'=>1];
         } else {
-            $controlOptions = ['NORMAL_ACCOUNT', 'ACCOUNTDISABLE'];
+            $controlOptions = ['NORMAL_ACCOUNT'=>1, 'ACCOUNTDISABLE'=>1];
         }
 
         $mod['userAccountControl'][0] = $this->accountControl($controlOptions);
