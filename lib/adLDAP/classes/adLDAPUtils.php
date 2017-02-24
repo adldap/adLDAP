@@ -252,8 +252,8 @@ class adLDAPUtils {
     /**
     * Round a Windows timestamp down to seconds and remove the seconds between 1601-01-01 and 1970-01-01
     * 
-    * @param long $windowsTime
-    * @return long $unixTime
+    * @param float $windowsTime
+    * @return float $unixTime
     */
     public static function convertWindowsTimeToUnixTime($windowsTime) {
       $unixTime = round($windowsTime / 10000000) - 11644473600; 
