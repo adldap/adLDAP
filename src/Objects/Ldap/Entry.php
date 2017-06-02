@@ -48,7 +48,7 @@ class Entry extends AbstractObject
                     if (array_key_exists('count', $attributes[$key]) && $attributes[$key]['count'] > 1) {
                         $data = [];
 
-                        for ($i = 0; $i <= $attributes[$key]['count']; $i++) {
+                        for ($i = 0; $i < $attributes[$key]['count']; $i++) {
                             $data[] = $attributes[$key][$i];
                         }
 
