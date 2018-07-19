@@ -2,6 +2,7 @@
 
 namespace Adldap;
 
+use Adldap\Classes\AdldapError;
 use Adldap\Exceptions\AdldapException;
 use Adldap\Interfaces\ConnectionInterface;
 use Adldap\Classes\AdldapSearch;
@@ -822,7 +823,14 @@ class Adldap
      * This may indeed be a 'Success' message but if you get an unknown error
      * it might be worth calling this function to see what errors were raised
      *
-     * @return string
+     * Note that this will usually return a string, unless setExtendedErrors()
+     * has been called on Connection\Ldap
+     *
+     * When setExtendedErrors has been set, this will return false if the last
+     * request completed successfully. If not, it will return a new instance of
+     * AdldapError.
+     * 
+     * @return bool|string|AdldapError
      */
     public function getLastError()
     {
