@@ -2,6 +2,7 @@
 
 namespace Adldap\Connections;
 
+use Adldap\Classes\AdldapError;
 use Adldap\Exceptions\AdldapException;
 use Adldap\Traits\LdapFunctionSupportTrait;
 use Adldap\Interfaces\ConnectionInterface;
@@ -69,6 +70,14 @@ class Ldap implements ConnectionInterface
      * @var bool
      */
     protected $suppressErrors = true;
+
+    /**
+     * Define whether extended errors (returning an AdldapError)
+     * should be performed.
+     *
+     * @var bool
+     */
+    protected $extendedErrors = false;
 
     /**
      * Returns true / false if the
@@ -156,6 +165,17 @@ class Ldap implements ConnectionInterface
     public function showErrors()
     {
         $this->suppressErrors = false;
+
+        return $this;
+    }
+
+    /**
+     * Sets the extendedErrors property to true.
+     * @return $this
+     */
+    public function setExtendedErrors()
+    {
+        $this->extendedErrors = true;
 
         return $this;
     }
@@ -268,6 +288,30 @@ class Ldap implements ConnectionInterface
      */
     public function getLastError()
     {
+        if ($this->extendedErrors) {
+            $diagMessage = '';
+            $errorNumber = ldap_errno($this->getConnection());
+
+            // if we have a returned value of 0, there was nothing but success!
+            // http://php.net/manual/en/function.ldap-errno.php
+            if ($errorNumber == 0) {
+                return false;
+            }
+
+            $errorString = ldap_err2str($errorNumber);
+
+            if (defined('LDAP_OPT_DIAGNOSTIC_MESSAGE')) {
+                // we are using an ldap library that supports getting diagnostic msgs.
+                if ($this->suppressErrors) {
+                    $diagMessage = @ldap_get_option($this->getConnection(), LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+                } else {
+                    $diagMessage = ldap_get_option($this->getConnection(), LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+                }
+            }
+
+            return new AdldapError($errorNumber, $errorString, $diagMessage);
+        }
+
         if ($this->suppressErrors) {
             return @ldap_error($this->getConnection());
         }
